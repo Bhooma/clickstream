@@ -1,3 +1,47 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Serve pre-compressed .br if client supports Brotli and .br file exists
+    RewriteCond %{HTTP:Accept-Encoding} br
+    RewriteCond %{REQUEST_FILENAME}.br -f
+    RewriteRule ^(.*)\.(js|css)$ $1.$2.br [L]
+</IfModule>
+
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddEncoding br .br
+</IfModule>
+
+<FilesMatch "\.(js|css)\.br$">
+    Header set Content-Encoding br
+    Header set Vary "Accept-Encoding"
+</FilesMatch>
+
+
+const CompressionPlugin = require('compression-webpack-plugin');
+
+module.exports = {
+  mode: 'production',
+
+  // other config like entry/output/etc
+
+  plugins: [
+    new CompressionPlugin({
+      filename: '[path][name][ext].br',
+      algorithm: 'brotliCompress',
+      test: /\.(js|css)$/,
+      compressionOptions: { level: 11 },
+      threshold: 10240,
+      minRatio: 0.8,
+      deleteOriginalAssets: false,
+    })
+  ]
+};
+
+npm install compression-webpack-plugin --save-dev
+
+
+
 sdk-api-test/
 ├── src/main/java/
 │   └── com.example.sdk/
