@@ -1,3 +1,23 @@
+
+const iframe = document.getElementById("myIframe");
+iframe.onload = function () {
+  iframe.contentWindow.postMessage(
+    { type: "parentPath", value: window.location.pathname },
+    "https://inb-uat.abc.com"
+  );
+};
+
+window.addEventListener("message", (event) => {
+  if (event.origin !== "https://bos.com") return;
+
+  if (event.data.type === "parentPath") {
+    const parentPath = event.data.value;
+    console.log("Received parent pathname:", parentPath);
+    // Use it safely here
+  }
+});
+
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
     # Serve pre-compressed .br if client supports Brotli and .br file exists
