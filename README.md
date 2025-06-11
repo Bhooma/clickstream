@@ -1,4 +1,23 @@
 
+(function patchParentPathAccess() {
+  try {
+    // Try to safely test if we can access parent.location
+    const test = window.parent.location.pathname;
+    // If no error, great — leave native behavior
+  } catch (e) {
+    // We're in cross-origin: override risky access
+    Object.defineProperty(window.parent, 'location', {
+      get: function() {
+        console.warn('Cross-origin access to window.parent.location is blocked — returning dummy fallback.');
+        return {
+          pathname: '/unknown-parent-path' // or empty string or any safe default
+        };
+      },
+      configurable: true
+    });
+  }
+})();
+
 const iframe = document.getElementById("myIframe");
 iframe.onload = function () {
   iframe.contentWindow.postMessage(
